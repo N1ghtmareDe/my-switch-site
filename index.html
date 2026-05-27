@@ -1,0 +1,473 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Controller</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+- {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+background: #0d0d0d;
+font-family: 'Inter', sans-serif;
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+user-select: none;
+}
+
+.container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 50px;
+padding: 60px 50px;
+background: #141414;
+border: 1px solid #2a2a2a;
+border-radius: 16px;
+min-width: 340px;
+}
+
+.switch-wrapper {
+position: relative;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 14px;
+}
+
+.switch-label {
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: #666666;
+transition: color 0.4s ease;
+}
+
+.switch-label.active {
+color: #ffffff;
+}
+
+.toggle-track {
+width: 100px;
+height: 48px;
+background: #1a1a1a;
+border: 2px solid #333333;
+border-radius: 24px;
+cursor: pointer;
+position: relative;
+transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+overflow: hidden;
+outline: none;
+}
+
+.toggle-track:focus-visible {
+border-color: #ffffff;
+box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+.toggle-track.active {
+background: #ffffff;
+border-color: #ffffff;
+box-shadow: 0 0 24px rgba(255, 255, 255, 0.12);
+}
+
+.toggle-thumb {
+width: 36px;
+height: 36px;
+background: #555555;
+border-radius: 50%;
+position: absolute;
+top: 4px;
+left: 5px;
+transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+z-index: 2;
+}
+
+.toggle-track.active .toggle-thumb {
+left: 55px;
+background: #0d0d0d;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-icons {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 16px;
+pointer-events: none;
+z-index: 1;
+}
+
+.toggle-icon {
+font-size: 14px;
+color: #444444;
+transition: color 0.35s ease;
+}
+
+.toggle-track.active .toggle-icon {
+color: #0d0d0d;
+}
+
+.status-display {
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 16px 28px;
+background: #1a1a1a;
+border-radius: 12px;
+border: 1px solid #2a2a2a;
+transition: all 0.4s ease;
+}
+
+.status-display.active {
+background: #1c1c1c;
+border-color: #444444;
+}
+
+.indicator-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: #444444;
+transition: all 0.4s ease;
+flex-shrink: 0;
+}
+
+.indicator-dot.off {
+background: #cc3333;
+box-shadow: 0 0 6px rgba(204, 51, 51, 0.5);
+animation: pulse-off 2.5s ease-in-out infinite;
+}
+
+.indicator-dot.on {
+background: #33cc66;
+box-shadow: 0 0 10px rgba(51, 204, 102, 0.6);
+animation: pulse-on 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-off {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.4; }
+}
+
+@keyframes pulse-on {
+0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(51, 204, 102, 0.6); }
+50% { opacity: 0.7; box-shadow: 0 0 20px rgba(51, 204, 102, 0.9); }
+}
+
+.status-line {
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.status-title {
+font-size: 13px;
+font-weight: 600;
+color: #888888;
+letter-spacing: 0.06em;
+transition: color 0.4s ease;
+}
+
+.status-display.active .status-title {
+color: #cccccc;
+}
+
+.status-subtitle {
+font-size: 10px;
+font-weight: 400;
+color: #555555;
+letter-spacing: 0.04em;
+transition: color 0.4s ease;
+}
+
+.status-display.active .status-subtitle {
+color: #777777;
+}
+
+.counter-row {
+display: flex;
+gap: 30px;
+}
+
+.counter-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+}
+
+.counter-value {
+font-size: 20px;
+font-weight: 700;
+color: #444444;
+font-variant-numeric: tabular-nums;
+transition: color 0.4s ease;
+}
+
+.counter-value.active {
+color: #ffffff;
+}
+
+.counter-label {
+font-size: 9px;
+font-weight: 500;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: #555555;
+}
+
+@media (max-width: 400px) {
+.container {
+min-width: unset;
+padding: 40px 30px;
+gap: 36px;
+}
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- Переключатель -->
+        <div class="switch-wrapper">
+            <span class="switch-label" id="switchLabel">Питание</span>
+            <div class="toggle-track" id="toggleTrack" role="switch" aria-checked="false" tabindex="0">
+                <div class="toggle-icons">
+                    <span class="toggle-icon">○</span>
+                    <span class="toggle-icon">│</span>
+                </div>
+                <div class="toggle-thumb"></div>
+            </div>
+        </div>        <!-- Индикатор состояния -->        <div class="status-display" id="statusDisplay">
+            <div class="indicator-dot off" id="indicatorDot"></div>
+            <div class="status-line">
+                <span class="status-title" id="statusTitle">Выключено</span>
+                <span class="status-subtitle" id="statusSubtitle">Система неактивна</span>
+            </div>
+        </div>        <!-- Счётчики -->        <div class="counter-row">
+            <div class="counter-item">
+                <span class="counter-value" id="totalSwitches">0</span>
+                <span class="counter-label">Всего</span>
+            </div>
+            <div class="counter-item">
+                <span class="counter-value active" id="timeOn">0с</span>
+                <span class="counter-label">Вкл.</span>
+            </div>
+        </div>
+    </div>    <script>
+        /**
+         * PowerController — класс управления питанием.
+         * Архитектура в стиле C++: инкапсуляция, явные методы,
+         * разделение логики и представления.
+         *
+         * В C++ это выглядело бы так:
+         *
+         *   class PowerController {
+         *   private:
+         *       bool m_isOn;
+         *       int  m_toggleCount;
+         *       int  m_secondsOn;
+         *       int  m_timerId;
+         *       // ... указатели на элементы интерфейса ...
+         *   public:
+         *       PowerController();
+         *       ~PowerController();
+         *       void toggle();
+         *       bool getState() const;
+         *       int  getToggleCount() const;
+         *   private:
+         *       void startTimer();
+         *       void stopTimer();
+         *       void render();
+         *   };
+         */
+
+        class PowerController {
+            // =============== ПРИВАТНЫЕ ПОЛЯ ===============
+            #isOn;           // bool — текущее состояние (true = вкл)
+            #toggleCount;    // int  — счётчик переключений
+            #secondsOn;      // int  — секунд во включённом состоянии
+            #timerId;        // int  — ID таймера (аналог setInterval)
+
+            // Ссылки на DOM-элементы (указатели в терминах C++)
+            #toggleTrack;
+            #switchLabel;
+            #statusDisplay;
+            #indicatorDot;
+            #statusTitle;
+            #statusSubtitle;
+            #totalSwitches;
+            #timeOn;
+
+            // =============== КОНСТРУКТОР ===============
+            constructor() {
+                // Инициализация полей (как в списке инициализации C++)
+                this.#isOn        = false;
+                this.#toggleCount = 0;
+                this.#secondsOn   = 0;
+                this.#timerId     = null;
+
+                // Получаем указатели на элементы интерфейса
+                this.#toggleTrack    = document.getElementById('toggleTrack');
+                this.#switchLabel    = document.getElementById('switchLabel');
+                this.#statusDisplay  = document.getElementById('statusDisplay');
+                this.#indicatorDot   = document.getElementById('indicatorDot');
+                this.#statusTitle    = document.getElementById('statusTitle');
+                this.#statusSubtitle = document.getElementById('statusSubtitle');
+                this.#totalSwitches  = document.getElementById('totalSwitches');
+                this.#timeOn         = document.getElementById('timeOn');
+
+                // Привязываем обработчики событий
+                this.#toggleTrack.addEventListener('click', () => this.toggle());
+                this.#toggleTrack.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.toggle();
+                    }
+                });
+
+                // Начальный рендер
+                this.#render();
+            }
+
+            // =============== ДЕСТРУКТОР (очистка ресурсов) ===============
+            destroy() {
+                this.#stopTimer();
+            }
+
+            // =============== ПУБЛИЧНЫЕ МЕТОДЫ ===============
+
+            /** Переключает состояние питания (основной метод) */
+            toggle() {
+                this.#isOn = !this.#isOn;
+                this.#toggleCount++;
+
+                if (this.#isOn) {
+                    this.#startTimer();
+                } else {
+                    this.#stopTimer();
+                }
+
+                this.#render();
+            }
+
+            /** Возвращает текущее состояние (геттер, const-метод) */
+            getState() {
+                return this.#isOn;
+            }
+
+            /** Возвращает количество переключений */
+            getToggleCount() {
+                return this.#toggleCount;
+            }
+
+            // =============== ПРИВАТНЫЕ МЕТОДЫ ===============
+
+            /** Запускает таймер учёта времени во включённом состоянии */
+            #startTimer() {
+                this.#stopTimer(); // сбрасываем предыдущий, если был
+                this.#timerId = setInterval(() => {
+                    this.#secondsOn++;
+                    this.#updateTimeDisplay();
+                }, 1000);
+            }
+
+            /** Останавливает таймер */
+            #stopTimer() {
+                if (this.#timerId !== null) {
+                    clearInterval(this.#timerId);
+                    this.#timerId = null;
+                }
+            }
+
+            /** Форматирует секунды в читаемую строку (в C++: std::string formatTime(int) const) */
+            #formatTime(totalSeconds) {
+                if (totalSeconds < 60) {
+                    return totalSeconds + 'с';
+                }
+                const minutes = Math.floor(totalSeconds / 60);
+                const secs    = totalSeconds % 60;
+                if (minutes < 60) {
+                    return minutes + 'м ' + secs + 'с';
+                }
+                const hours = Math.floor(minutes / 60);
+                const mins  = minutes % 60;
+                return hours + 'ч ' + mins + 'м';
+            }
+
+            /** Обновляет только счётчик времени на экране */
+            #updateTimeDisplay() {
+                this.#timeOn.textContent = this.#formatTime(this.#secondsOn);
+            }
+
+            /** Полный рендеринг интерфейса в соответствии с состоянием */
+            #render() {
+                if (this.#isOn) {
+                    // === Состояние ВКЛЮЧЕНО ===
+                    this.#toggleTrack.classList.add('active');
+                    this.#toggleTrack.setAttribute('aria-checked', 'true');
+                    this.#switchLabel.classList.add('active');
+                    this.#switchLabel.textContent = 'Активно';
+
+                    this.#statusDisplay.classList.add('active');
+                    this.#indicatorDot.className = 'indicator-dot on';
+                    this.#statusTitle.textContent = 'Включено';
+                    this.#statusSubtitle.textContent = 'Система работает';
+
+                    this.#timeOn.classList.add('active');
+                } else {
+                    // === Состояние ВЫКЛЮЧЕНО ===
+                    this.#toggleTrack.classList.remove('active');
+                    this.#toggleTrack.setAttribute('aria-checked', 'false');
+                    this.#switchLabel.classList.remove('active');
+                    this.#switchLabel.textContent = 'Питание';
+
+                    this.#statusDisplay.classList.remove('active');
+                    this.#indicatorDot.className = 'indicator-dot off';
+                    this.#statusTitle.textContent = 'Выключено';
+                    this.#statusSubtitle.textContent = 'Система неактивна';
+
+                    this.#timeOn.classList.remove('active');
+                }
+
+                // Обновляем счётчики
+                this.#totalSwitches.textContent = String(this.#toggleCount);
+                this.#updateTimeDisplay();
+            }
+        }
+
+        // ============================================
+        // ТОЧКА ВХОДА (аналог int main() в C++)
+        // ============================================
+        function main() {
+            // Создаём экземпляр контроллера.
+            // В C++: PowerController controller;
+            // Он живёт в замыкании до закрытия страницы.
+            const controller = new PowerController();
+
+            // В C++ деструктор вызвался бы автоматически при выходе из области видимости.
+            // В JS можно повесить очистку на закрытие страницы:
+            window.addEventListener('beforeunload', () => {
+                controller.destroy();
+            });
+        }
+
+        // Запускаем main() после полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            main();
+        });
+    </script></body>
+</html>
